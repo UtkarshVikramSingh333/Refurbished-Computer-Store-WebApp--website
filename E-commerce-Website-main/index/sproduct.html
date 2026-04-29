@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecommerce Website</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+</head>
+
+<body>
+    <section id="header">
+        <a href="#"><img src="img/logo.png" class="logo" alt=""></a>
+        <div>
+            <ul id="navbar">
+                <li><a href="index.html">Home</a></li>
+                <li><a class="active" href="shop.html">Shop</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li id="lg-bag"><a href="cart.html"><i class="far fa-shopping-bag"></i><span class="cart-badge">0</span></a></li>
+                <a href="#" id="close"><i class="far fa-times"></i></a>
+
+            </ul>
+        </div>
+        <div id="mobile">
+            <a href="cart.html">
+                <i class="far fa-shopping-bag"></i>
+                <span class="cart-badge">0</span>
+            </a>
+            <i id="bar" class="fas fa-outdent"></i>
+        </div>
+    </section>
+    <section id="prodetails" class="section-p1">
+        <div class="single-pro-image">
+            <img src="https://via.placeholder.com/600x600.png?text=Loading..." width="100%" id="MainImg">
+            <div class="small-img-group">
+                <!-- Small images can be populated here if the API provides multiple -->
+            </div>
+        </div>
+        <div class="single-pro-details">
+            <h6>Home / Gadget</h6>
+            <h4>Loading...</h4>
+            <h2>$0.00</h2>
+            <input type="number" value="1">
+            <button class="normal">Add To Cart</button>
+            <h4>Product Details</h4>
+            <span>Loading product details...</span>
+        </div>
+    </section> 
+    <section id="product1" class="section-p1">
+        <h2>Featured Products</h2>
+        <div class="pro-container">
+            <!-- Products will be loaded here by JavaScript -->
+        </div>
+    </section>
+    <section id="newsletter" class="section-p1 section-m1">
+        <div class="newstext">
+            <h4>Sign Up For Newsletters</h4>
+            <p>Get E-mail updates aboutn our latest shop and <span>special offers</span></p>
+        </div>
+        <div class="form">
+            <input type="text" placeholder="Your email address">
+            <button class="normal">Sign up</button>
+        </div>
+    </section>
+    <footer class="section-p1">
+        <div class="col">
+            <img class="logo" src="img/logo.png">
+            <h4>Contact</h4>
+            <p><strong>Address: </strong> 562 Wellington Road, Street 32,San Francisco</p>
+            <p><strong>Phone: </strong> +01 2222 365 /(+91) 01 2345 6789</p>
+            <p><strong>Hours: </strong> 10:00 - 18:00, Mon - Sat</p>
+            <div class="follow">
+                <h4>Follow us</h4>
+                <div class="icon">
+                    <i class="fab fa-facebook-f"></i>
+                    <i class="fab fa-twitter"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-pinterest-p"></i>
+                    <i class="fab fa-youtube"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <h4>About</h4>
+            <a href="#">About Us</a>
+            <a href="#">Delivery Information</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms & Conditions</a>
+            <a href="#">Contact Us</a>
+        </div>
+        <div class="col">
+            <h4>My Account</h4>
+            <a href="#">Sign In</a>
+            <a href="#">View Cart</a>
+            <a href="#">My Wishlist</a>
+            <a href="#">Track My Orders</a>
+            <a href="#">Help</a>
+        </div>
+        <div class="col install">
+            <h4>Install App</h4>
+            <p>From App Store or Google Play</p>
+            <div class="row">
+                <img src="img/pay/app.jpg">
+                <img src="img/pay/play.jpg">
+            </div>
+            <p>Secured Payment Gateways</p>
+            <img src="img/pay/pay.png">
+        </div>
+        <div class="copyright">
+            <p>© 2026, Utkarsh Vikram Singh- Ecommerce Website</p>
+        </div>
+    </footer>
+<script src="script.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const proDetailsContainer = document.getElementById('prodetails');
+        let currentProduct = null;
+
+        if (productId) {
+            fetch('https://s3.us-east-1.amazonaws.com/assets.spotandtango/products.json')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(products => {
+                    const product = products.find(p => p.id === productId);
+                    if (product) {
+                        currentProduct = product; // Store the product details
+                        const imageUrl = currentProduct.image_url || getProductImage(currentProduct);
+                        document.getElementById('MainImg').src = imageUrl;
+
+                        const details = document.querySelector('.single-pro-details');
+                        details.querySelector('h6').textContent = `Home / ${product.group}`;
+                        details.querySelector('h4').textContent = product.name;
+                        details.querySelector('h2').innerHTML = `$${product.price} <del>$${product.msrp}</del>`;
+                        details.querySelector('span').textContent = `This is a high-quality, certified refurbished ${product.group}. It has been professionally inspected, tested, and cleaned by qualified suppliers. The product comes with a 12-month warranty for your peace of mind.`;
+
+                        if (product.status === 'Unavailable') {
+                            const button = details.querySelector('button');
+                            button.textContent = 'Sold Out';
+                            button.disabled = true;
+                            details.querySelector('input').disabled = true;
+                        }
+
+                    } else {
+                        proDetailsContainer.innerHTML = '<h2>Product not found.</h2>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching product details:', error);
+                    proDetailsContainer.innerHTML = '<h2>Could not load product details. Please try again later.</h2>';
+                });
+        } else {
+            proDetailsContainer.innerHTML = '<h2>No product selected. Please go back to the shop and select a product.</h2>';
+        }
+
+        const addToCartButton = proDetailsContainer.querySelector('button.normal');
+        if (addToCartButton) {
+            addToCartButton.addEventListener('click', () => {
+                if (currentProduct) {
+                    const quantityInput = proDetailsContainer.querySelector('input[type="number"]');
+                    const quantity = parseInt(quantityInput.value, 10);
+
+                    if (quantity > 0) {
+                        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                        const existingProductIndex = cart.findIndex(item => item.id === currentProduct.id);
+
+                        if (existingProductIndex > -1) {
+                            cart[existingProductIndex].quantity += quantity;
+                        } else {
+                            cart.push({ id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, image: currentProduct.image_url || getProductImage(currentProduct), quantity: quantity });
+                        }
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        updateCartIcon();
+                        animateCartIcon();
+                        alert(`${currentProduct.name} has been added to your cart.`); // Provide feedback
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
